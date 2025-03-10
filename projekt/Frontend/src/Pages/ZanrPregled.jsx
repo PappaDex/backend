@@ -1,95 +1,51 @@
 import { useEffect, useState } from "react";
-import IgraService from "../services/IgraService";
-import { Button, Table } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
-import { RouteNames } from "../constants";
 import ZanrService from "../services/ZanrService";
-
+import { useNavigate } from "react-router-dom";
+import { ListGroup, Button, Row, Col } from "react-bootstrap";
+import { RouteNames } from "../constants";
 export default function ZanrPregled() {
-    const [zanrovi, setZanrovi] = useState();
-    const [isLoading, setIsLoading] = useState(false);
+    const [zanrovi, setZanrovi] = useState([]);
     const navigate = useNavigate();
-
-    async function dohvatiZanrove() {
-        const zanrovi = await ZanrService.get();
-        const odgovor = await IgraService.get();
-        odgovor.forEach((igra) => {
-            igra.kategorija = (zanrovi.length == 0 ? [] : zanrovi.find((z) => z.id === igra.idZanra).imeZanra);
-        }
-        );
-        setIgre(odgovor);
-    }
-
-    function obrisiIgru(id) {
-        const odgovor = IgraService.obrisi(id);
-        if (odgovor.greska) {
-            alert("Greška kod brisanja igre");
-            setIsLoading(false);
-            return;
-        }
-        setIsLoading(false);
-        window.location.reload();
-    }
-
-    //hooks (kuka) se izvodi prilikom dolaska na stranicu igre
     useEffect(() => {
-        dohvatiZanrove();
+        ZanrService.get().then((podaci) => setZanrovi(podaci));
     }, []);
-
+    function obrisiZanr(id) {
+        ZanrService.obrisi(id).then((odgovor) => {
+            if (odgovor.greska) {
+                alert(odgovor.poruka);
+            } else {
+                setZanrovi(zanrovi.filter((z) => z.id !== id));
+            }
+        });
+    }
     return (
         <>
-            <Link
-                to={RouteNames.DODAJ}
-                className="btn btn-success"
-                style={{ marginTop: "20px", marginBottom: "20px", width: "100%" }}
-            >
-                Dodaj novi zanr
-            </Link>
-            <Table striped bordered hover responsive className="ruka">
-                <thead>
-                    <tr>
-                        <th>Naziv</th>
-                        <th style={{ width: "120px", textAlign: "center" }}>Opcije</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {zanrovi &&
-                        zanrovi.map((zanr, index) => (
-                            <tr key={index}>
-                                <td onClick={() => navigate(`/zanr/${zanr.id}`)}>
-                                    {zanr.naslov}
-                                </td>
-                                <td style={{ display: "flex", gap: "10px" }}>
-                                    <Button
-                                        style={{ backgroundColor: "#4CAF50", color: "white" }}
-                                        onClick={() => navigate(`/zanr/update/${zanr.id}`)}
-                                    >
-                                        Ažuriranje
-                                    </Button>
+            <h2 className="subtitle">Pregled žanrova</h2>
+            <Button variant="success" onClick={() => navigate(RouteNames.ZANR_DODAJ)} style={{ marginBottom: "20px" }}>
+                Dodaj žanr
+            </Button>
+            <ListGroup>
+                {zanrovi.map((zanr) => (
+                    <ListGroup.Item key={zanr.id}>
+                        <Row>
+                            <Col xs={6} onClick={() => navigate(RouteNames.ZANR_IGRE.replace(":id", zanr.id))}>
+                                {zanr.imeZanra}
+                            </Col>
+                            <Col xs={3}>
+                                <Button variant="warning" onClick={() => navigate(`/zanrovi/update/${zanr.id}`)}>
 
-                                    <Button
-                                        style={{ backgroundColor: "#f44336", color: "white" }}
-                                        onClick={() => {
-                                            setIsLoading(true);
-                                            obrisiIgru(zanr.id);
-                                        }}
-                                        disabled={isLoading}
-                                    >
-                                        {isLoading ? (
-                                            <span
-                                                className="spinner-border spinner-border-sm"
-                                                role="status"
-                                                aria-hidden="true"
-                                            ></span>
-                                        ) : (
-                                            "Brisanje"
-                                        )}
-                                    </Button>
-                                </td>
-                            </tr>
-                        ))}
-                </tbody>
-            </Table>
+                                    Ažuriraj
+                                </Button>
+                            </Col>
+                            <Col xs={3}>
+                                <Button variant="danger" onClick={() => obrisiZanr(zanr.id)}>
+                                    Obriši
+                                </Button>
+                            </Col>
+                        </Row>
+                    </ListGroup.Item>
+                ))}
+            </ListGroup>
         </>
     );
 }

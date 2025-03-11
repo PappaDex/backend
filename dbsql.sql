@@ -1,5 +1,5 @@
-CREATE DATABASE ZbirkaIgara
-USE ZbirkaIgara;
+CREATE DATABASE ZbirkaIgara collate Croatian_CI_AS;
+    USE ZbirkaIgara;
 
 CREATE TABLE Zanr (
     Id INT PRIMARY KEY IDENTITY(1,1),

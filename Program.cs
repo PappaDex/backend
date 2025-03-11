@@ -24,18 +24,15 @@ public class Program
         });
 
         var app = builder.Build();
-
-        app.UseSwagger();
-        app.UseSwaggerUI();
-
-        app.UseHttpsRedirection();
-
-        app.UseAuthorization();
-        app.MapControllers();
-        app.UseCors("CorsPolicy");
         app.UseStaticFiles();
         app.UseDefaultFiles();
         app.MapFallbackToFile("index.html");
+        app.UseSwagger();
+        app.UseSwaggerUI();
+        app.UseHttpsRedirection();
+        app.UseAuthorization();
+        app.MapControllers();
+        app.UseCors("CorsPolicy");
         app.Run();
     }
 }

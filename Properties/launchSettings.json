@@ -4,7 +4,7 @@
     "windowsAuthentication": false,
     "anonymousAuthentication": true,
     "iisExpress": {
-      "applicationUrl": "http://karlobedu-001-site1.jtempurl.com/",
+      "applicationUrl": "http://localhost:5112",
       "sslPort": 44339
     }
   },
